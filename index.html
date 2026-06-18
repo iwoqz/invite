@@ -1,0 +1,370 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes, maximum-scale=2.0">
+  <title>Приглашение ✨</title>
+  <style>
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+    body {
+      background: #fef9f6;
+      background-image: 
+        radial-gradient(circle at 15% 25%, #ffe8e0 0%, transparent 45%),
+        radial-gradient(circle at 85% 70%, #fce4ec 0%, transparent 45%);
+      font-family: 'Segoe UI', system-ui, sans-serif;
+      min-height: 100vh;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: 1rem;
+    }
+    .card {
+      width: 100%;
+      max-width: 500px;
+      background: #fffdfb;
+      box-shadow: 0 20px 50px rgba(200, 150, 140, 0.15);
+      border-radius: 2.5rem;
+      padding: 2.5rem 1.8rem;
+      text-align: center;
+      border: 2px solid #f5ddd4;
+    }
+    h1 { font-size: 2.2rem; color: #c4826a; margin-bottom: 0.5rem; }
+    .greeting-icon { font-size: 2.5rem; margin-bottom: 0.5rem; animation: bounce 2s infinite; }
+    @keyframes bounce {
+      0%, 100% { transform: translateY(0); }
+      50% { transform: translateY(-10px); }
+    }
+    .sub-text { font-size: 1rem; color: #c49b8a; margin-bottom: 1.5rem; }
+    .question-block {
+      font-size: 1.8rem; color: #b8806b; margin: 1.5rem 0;
+      background: #fef5f0; padding: 0.7rem 1.5rem; border-radius: 50px;
+      display: inline-block; border: 1px solid #f8ddd0;
+    }
+    .button-row { display: flex; gap: 1.5rem; justify-content: center; margin: 1.5rem 0; }
+    .btn {
+      border: none; background: #fbe8df;
+      padding: 0.9rem 2.2rem; font-size: 1.4rem; border-radius: 50px;
+      color: #9b6958; cursor: pointer; border: 2px solid #f0cfbf;
+      transition: 0.3s; font-weight: 500;
+    }
+    .btn:hover { background: #fccfc1; transform: translateY(-2px); }
+    .btn-no { background: #efe3dd; color: #b0958a; }
+    .toast-message {
+      background: #fff5f2; border: 2px solid #f0cebf;
+      color: #c4826a; padding: 0.6rem 1.5rem; border-radius: 30px;
+      margin-top: 1rem; display: inline-block;
+    }
+    .hidden-screen { display: none; }
+    .active-screen { display: block; animation: fadeIn 0.3s; }
+    @keyframes fadeIn {
+      from { opacity: 0; transform: translateY(10px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+    
+    .calendar-container { margin: 1rem 0; }
+    .month-header {
+      display: flex; justify-content: space-between; align-items: center;
+      font-size: 1.3rem; color: #c0856b; margin-bottom: 0.5rem;
+    }
+    .month-nav { background: none; border: none; font-size: 1.8rem; cursor: pointer; color: #d4a892; }
+    .weekdays {
+      display: grid; grid-template-columns: repeat(7, 1fr);
+      text-align: center; font-size: 0.8rem; color: #c4a090; margin-bottom: 0.3rem;
+    }
+    .days-grid { display: grid; grid-template-columns: repeat(7, 1fr); gap: 0.4rem; }
+    .day-cell {
+      aspect-ratio: 1; display: flex; align-items: center; justify-content: center;
+      border-radius: 50%; background: #fffdfb; cursor: pointer;
+      font-size: 0.95rem; color: #7d6254; border: 2px solid transparent;
+    }
+    .day-cell:hover { background: #fce8dd; }
+    .day-cell.selected {
+      background: #f0c4b0; border-color: #d49478; color: white; font-weight: 600;
+    }
+    .day-cell.empty { background: transparent; cursor: default; }
+    .selected-dates-summary { font-size: 0.9rem; color: #b8866e; margin: 0.8rem 0; }
+    
+    .categories-grid { display: flex; flex-wrap: wrap; gap: 0.8rem; justify-content: center; margin: 1.5rem 0; }
+    .category-chip {
+      background: #fdf7f3; border: 2px solid #e8cfc0; border-radius: 30px;
+      padding: 0.7rem 1.2rem; cursor: pointer; color: #8b6b5a; font-size: 0.95rem;
+    }
+    .category-chip.selected { background: #eac8b8; border-color: #c48b6e; color: white; }
+    #customPlaceInput {
+      border: 2px solid #e8cfc0; border-radius: 30px; padding: 0.7rem 1.2rem;
+      width: 80%; font-size: 0.95rem; background: #fffdfb; outline: none; text-align: center;
+    }
+    .back-link { font-size: 0.9rem; color: #cfa896; margin-top: 1rem; cursor: pointer; text-decoration: underline; }
+    
+    .cat-img { width: 200px; border-radius: 20px; margin: 1rem 0; border: 3px solid #fadbd8; }
+    .cat-caption { font-size: 2rem; color: #d4897a; }
+    .save-status { font-size: 0.85rem; color: #c49b8a; margin-top: 0.5rem; }
+  </style>
+</head>
+<body>
+  <div class="card" id="appCard">
+    <!-- ЭКРАН 1 -->
+    <div id="screen1" class="active-screen">
+      <div class="greeting-icon">🧸</div>
+      <h1>Привет!</h1>
+      <div class="question-block">Пойдём гулять? 💫</div>
+      <div class="button-row">
+        <button class="btn" id="btnYes">Да ✅</button>
+        <button class="btn btn-no" id="btnNo">Нет ❌</button>
+      </div>
+      <div id="noMessage" class="toast-message" style="display: none;">Сюда нельзя нажимать 🥺</div>
+    </div>
+
+    <!-- ЭКРАН 2 -->
+    <div id="screen2" class="hidden-screen">
+      <div class="greeting-icon">📅✨</div>
+      <h1>Выбери дату</h1>
+      <div class="sub-text">можно несколько дней 🌸</div>
+      <div class="calendar-container" id="calendarWidget"></div>
+      <div class="selected-dates-summary" id="selectedDatesDisplay"></div>
+      <button class="btn" id="goToPlaceBtn">Дальше →</button>
+      <div class="back-link" id="backTo1From2">← назад</div>
+    </div>
+
+    <!-- ЭКРАН 3 -->
+    <div id="screen3" class="hidden-screen">
+      <div class="greeting-icon">📍✨</div>
+      <h1>Куда пойдём?</h1>
+      <div class="sub-text">выбери одно или несколько 🧸</div>
+      <div class="categories-grid" id="categoriesContainer"></div>
+      <div style="margin: 0.5rem 0;">
+        <input type="text" id="customPlaceInput" placeholder="Свой вариант..." autocomplete="off">
+      </div>
+      <button class="btn" id="finishBtn">Готово </button>
+      <div class="back-link" id="backTo2From3">← изменить дату</div>
+    </div>
+
+    <!-- ЭКРАН 4 -->
+    <div id="screen4" class="hidden-screen">
+      <img src="https://i.pinimg.com/736x/aa/9b/6c/aa9b6cc0a982ba4876eb164230acd5ca.jpg" alt="Котик" class="cat-img">
+      <div class="cat-caption">Мяу 😺</div>
+      <div class="save-status" id="saveStatus"></div>
+      <div class="back-link" id="backToStartFrom4">← начать заново</div>
+    </div>
+  </div>
+
+  <script>
+    (function() {
+      // ⚙️ ВСТАВЬ СЮДА URL СВОЕГО GOOGLE APPS SCRIPT
+      const GOOGLE_SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbz851szM_Oxifw9rX0md7cmq08yKjIXXr_pa2B5JqiHAQ-YYHSAQ3k8kJ-PxeNE5KsMdA/exec';
+
+      const screen1 = document.getElementById('screen1');
+      const screen2 = document.getElementById('screen2');
+      const screen3 = document.getElementById('screen3');
+      const screen4 = document.getElementById('screen4');
+      const btnYes = document.getElementById('btnYes');
+      const btnNo = document.getElementById('btnNo');
+      const noMessage = document.getElementById('noMessage');
+      const calendarWidget = document.getElementById('calendarWidget');
+      const selectedDatesDisplay = document.getElementById('selectedDatesDisplay');
+      const goToPlaceBtn = document.getElementById('goToPlaceBtn');
+      const backTo1From2 = document.getElementById('backTo1From2');
+      const categoriesContainer = document.getElementById('categoriesContainer');
+      const customPlaceInput = document.getElementById('customPlaceInput');
+      const finishBtn = document.getElementById('finishBtn');
+      const backTo2From3 = document.getElementById('backTo2From3');
+      const backToStartFrom4 = document.getElementById('backToStartFrom4');
+      const saveStatus = document.getElementById('saveStatus');
+
+      let selectedDates = new Set();
+      let currentMonthOffset = 0;
+      const today = new Date();
+      const baseDate = new Date(today.getFullYear(), today.getMonth(), 1);
+      let selectedCategories = new Set();
+
+      const categoryList = [
+        { label: '🍽️ Ресторан', value: 'restaurant' },
+        { label: '⛰️ Активный отдых', value: 'active' },
+        { label: '🌿 Загородный', value: 'countryside' },
+        { label: '📚 Интеллектуальный', value: 'intellectual' },
+        { label: '🎨 Творческий', value: 'creative' },
+        { label: '🛋️ Домашний', value: 'home' }
+      ];
+
+      function showScreen(name) {
+        [screen1, screen2, screen3, screen4].forEach(s => {
+          s.classList.add('hidden-screen');
+          s.classList.remove('active-screen');
+        });
+        document.getElementById(name).classList.remove('hidden-screen');
+        document.getElementById(name).classList.add('active-screen');
+
+        if (name === 'screen1') noMessage.style.display = 'none';
+        if (name === 'screen2') { renderCalendar(); updateSelectedDatesDisplay(); }
+        if (name === 'screen3') { renderCategories(); customPlaceInput.value = ''; }
+        if (name === 'screen4') saveStatus.textContent = '';
+      }
+
+      function getMonthDate(offset) {
+        const d = new Date(baseDate);
+        d.setMonth(d.getMonth() + offset);
+        return d;
+      }
+
+      function formatDateKey(y, m, d) {
+        return `${y}-${String(m + 1).padStart(2, '0')}-${String(d).padStart(2, '0')}`;
+      }
+
+      function renderCalendar() {
+        const monthDate = getMonthDate(currentMonthOffset);
+        const year = monthDate.getFullYear();
+        const month = monthDate.getMonth();
+        const firstDay = new Date(year, month, 1).getDay();
+        const daysInMonth = new Date(year, month + 1, 0).getDate();
+        const monthNames = ['Январь', 'Февраль', 'Март', 'Апрель', 'Май', 'Июнь', 'Июль', 'Август', 'Сентябрь', 'Октябрь', 'Ноябрь', 'Декабрь'];
+        
+        calendarWidget.innerHTML = `
+          <div class="month-header">
+            <button class="month-nav" id="prevMonthBtn">←</button>
+            <span>${monthNames[month]} ${year}</span>
+            <button class="month-nav" id="nextMonthBtn">→</button>
+          </div>
+          <div class="weekdays">
+            <div>Вс</div><div>Пн</div><div>Вт</div><div>Ср</div><div>Чт</div><div>Пт</div><div>Сб</div>
+          </div>
+          <div class="days-grid" id="daysGridContainer"></div>
+        `;
+
+        const daysGrid = document.getElementById('daysGridContainer');
+        for (let i = 0; i < firstDay; i++) {
+          daysGrid.appendChild(Object.assign(document.createElement('div'), {className: 'day-cell empty'}));
+        }
+
+        for (let d = 1; d <= daysInMonth; d++) {
+          const key = formatDateKey(year, month, d);
+          const cell = document.createElement('div');
+          cell.className = 'day-cell' + (selectedDates.has(key) ? ' selected' : '');
+          cell.textContent = d;
+          cell.addEventListener('click', () => {
+            if (selectedDates.has(key)) {
+              selectedDates.delete(key);
+              cell.classList.remove('selected');
+            } else {
+              selectedDates.add(key);
+              cell.classList.add('selected');
+            }
+            updateSelectedDatesDisplay();
+          });
+          daysGrid.appendChild(cell);
+        }
+
+        document.getElementById('prevMonthBtn').onclick = () => {
+          if (currentMonthOffset > 0) { currentMonthOffset--; renderCalendar(); updateSelectedDatesDisplay(); }
+        };
+        document.getElementById('nextMonthBtn').onclick = () => {
+          currentMonthOffset++; renderCalendar(); updateSelectedDatesDisplay();
+        };
+      }
+
+      function updateSelectedDatesDisplay() {
+        if (selectedDates.size === 0) {
+          selectedDatesDisplay.textContent = '🌸 Пока ничего не выбрано';
+          return;
+        }
+        const sorted = [...selectedDates].sort();
+        selectedDatesDisplay.textContent = '✨ Выбрано: ' + sorted.map(d => {
+          const [y, m, day] = d.split('-');
+          return `${day}.${m}.${y}`;
+        }).join(', ');
+      }
+
+      function renderCategories() {
+        categoriesContainer.innerHTML = '';
+        selectedCategories.clear();
+        categoryList.forEach(cat => {
+          const chip = document.createElement('div');
+          chip.className = 'category-chip';
+          chip.textContent = cat.label;
+          chip.onclick = function() {
+            if (selectedCategories.has(cat.value)) {
+              selectedCategories.delete(cat.value);
+              this.classList.remove('selected');
+            } else {
+              selectedCategories.add(cat.value);
+              this.classList.add('selected');
+            }
+          };
+          categoriesContainer.appendChild(chip);
+        });
+      }
+
+      function saveToGoogleSheets(dates, places, customPlace) {
+        const dateSorted = [...dates].sort();
+        const dateStr = dateSorted.map(d => {
+          const [y, m, day] = d.split('-');
+          return `${day}.${m}.${y}`;
+        }).join(', ');
+
+        let placeSummary = [];
+        categoryList.forEach(cat => {
+          if (places.has(cat.value)) placeSummary.push(cat.label);
+        });
+
+        saveStatus.textContent = '💾 Сохраняю ответ...';
+
+        fetch(GOOGLE_SCRIPT_URL, {
+          method: 'POST',
+          body: JSON.stringify({
+            dates: dateStr || 'не выбраны',
+            places: placeSummary.join(', ') || 'не указаны',
+            custom: customPlace.trim() || ''
+          })
+        })
+        .then(response => response.json())
+        .then(data => {
+          if (data.success) {
+            saveStatus.textContent = '✅ Кайф!';
+          } else {
+            saveStatus.textContent = '❌ Упс, что-то пошло не так';
+          }
+        })
+        .catch(() => {
+          saveStatus.textContent = '❌ Ошибка соединения';
+        });
+      }
+
+      btnYes.onclick = () => showScreen('screen2');
+
+      btnNo.onclick = function() {
+        noMessage.style.display = 'inline-block';
+        setTimeout(() => { noMessage.style.display = 'none'; }, 3000);
+      };
+
+      goToPlaceBtn.onclick = () => {
+        if (selectedDates.size === 0) {
+          alert('Выбери день!!!');
+          return;
+        }
+        showScreen('screen3');
+      };
+
+      backTo1From2.onclick = () => showScreen('screen1');
+      backTo2From3.onclick = () => showScreen('screen2');
+
+      finishBtn.onclick = () => {
+        const customText = customPlaceInput.value.trim();
+        if (selectedCategories.size === 0 && !customText) {
+          alert('💫 Выбери вариант или напиши свой');
+          return;
+        }
+        showScreen('screen4');
+        saveToGoogleSheets(selectedDates, selectedCategories, customText);
+      };
+
+      backToStartFrom4.onclick = () => {
+        selectedDates.clear();
+        selectedCategories.clear();
+        currentMonthOffset = 0;
+        showScreen('screen1');
+      };
+
+      showScreen('screen1');
+    })();
+  </script>
+</body>
+</html>
